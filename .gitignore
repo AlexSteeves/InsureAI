@@ -1,0 +1,36 @@
+# ── Frontend ──────────────────────────────────────────────
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+frontend/.env.local
+frontend/.env.production
+frontend/.env
+
+# ── Backend ───────────────────────────────────────────────
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.env
+backend/insureai.db
+
+# ── OS ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────
+.vscode/
+.idea/
+
+# ── Database ──────────────────────────────────────────────
+backend/*.db
+
+# ── Keys ──────────────────────────────────────────────────
+Keys/
+*.pem
+
+# ── Internal / Claude Code ────────────────────────────────
+context/
+frontend/context/
+frontend/AGENTS.md
+frontend/CLAUDE.md

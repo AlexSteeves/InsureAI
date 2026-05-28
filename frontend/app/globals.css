@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Brand tokens (single source of truth) ──────────────────────────────────
+   60% bg         #fbfbfe  — page backgrounds, main surfaces
+   30% secondary  #dedcff  — cards, navbar, form surfaces
+   10% accent     #433bff  — CTAs, buttons, highlights
+   text           #050315  — all body text
+   primary        #2f27ce  — headings, hover states on accent
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@theme inline {
+  --color-brand-bg:        #fbfbfe;
+  --color-brand-secondary: #dedcff;
+  --color-brand-primary:   #2f27ce;
+  --color-brand-accent:    #433bff;
+  --color-brand-text:      #050315;
+
+  /* shadcn token overrides — makes all shadcn components use the brand */
+  --color-background:       var(--background);
+  --color-foreground:       var(--foreground);
+  --color-primary:          var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:        var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-card:             var(--card);
+  --color-card-foreground:  var(--card-foreground);
+  --color-border:           var(--border);
+  --color-input:            var(--input);
+  --color-ring:             var(--ring);
+  --color-muted:            var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent:           var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive:      var(--destructive);
+  --color-popover:          var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.8);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+  /* shadcn base — mapped to brand colors */
+  --background:             #fbfbfe;
+  --foreground:             #050315;
+  --card:                   #dedcff;
+  --card-foreground:        #050315;
+  --popover:                #fbfbfe;
+  --popover-foreground:     #050315;
+  --primary:                #433bff;
+  --primary-foreground:     #ffffff;
+  --secondary:              #dedcff;
+  --secondary-foreground:   #050315;
+  --muted:                  #dedcff;
+  --muted-foreground:       #050315cc;
+  --accent:                 #433bff;
+  --accent-foreground:      #ffffff;
+  --destructive:            oklch(0.577 0.245 27.325);
+  --border:                 rgba(47, 39, 206, 0.12);
+  --input:                  rgba(47, 39, 206, 0.10);
+  --ring:                   #433bff;
+  --radius:                 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-brand-bg text-brand-text;
+  }
+}
