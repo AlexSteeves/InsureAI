@@ -91,7 +91,7 @@ export async function submitClaim(data: {
   const timeout = setTimeout(() => controller.abort(), 60_000) // 60s — Claude can take ~10s
 
   try {
-    const res = await fetch(`${API}/claims`, {
+    const res = await fetch(`${API}/claims/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
