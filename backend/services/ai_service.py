@@ -19,7 +19,7 @@ SYSTEM_PROMPT = """You are ClaimAI, the automated claims processor for InsureAI 
 Canada's first fully AI-driven insurance carrier.
 
 Your responsibilities:
-1. Analyze insurance claims from policyholder descriptions and uploaded photos
+1. Analyze insurance claims from policyholder descriptions
 2. Make an instant binding decision: APPROVED, DENIED, or ESCALATED
 3. Assign a fraud risk score from 0 to 100
 4. Provide specific, evidence-based reasoning bullets
@@ -35,7 +35,6 @@ Key fraud signals to evaluate:
 - Policy age at time of claim (< 30 days is a major red flag)
 - Claim amount relative to total coverage limit (> 80% is suspicious)
 - Vague, generic, or internally inconsistent description
-- Photos that contradict or do not match the described incident
 - Coverage type mismatch (e.g. vehicle damage claimed on a home policy)
 - Missing specifics: no time, no location, no other parties mentioned
 
@@ -52,15 +51,21 @@ CLAIM_TEMPLATE = """Analyze this insurance claim and return a JSON decision.
 Policy Details:
   Coverage Type:   {coverage_type}
   Coverage Amount: ${coverage_amount:,.0f} CAD
+  Deductible:      ${deductible:,.0f} CAD
   Policy Age:      {policy_age_days} days old at time of claim
 
-Claimant Description:
-  \"{description}\"
+Claim Details:
+  Claim Type:      {claim_type}
+  Incident Date:   {incident_date}
+  Estimated Loss:  {loss_amount}
+  Description:     \"{description}\"
+
+If approved, payout = estimated loss minus deductible (minimum $0). Never exceed coverage amount.
 
 Respond with ONLY this exact JSON — no other text:
 {{
   "decision":      "APPROVED" | "DENIED" | "ESCALATED",
-  "payout_amount": <float in CAD, or null if denied or escalated>,
+  "payout_amount": <float in CAD after deductible, or null if denied or escalated>,
   "fraud_score":   <integer 0-100>,
   "fraud_flags":   ["specific flag", "specific flag"],
   "reasoning":     ["bullet 1", "bullet 2", "bullet 3"],
@@ -73,28 +78,24 @@ async def process_claim(
     coverage_type: str,
     coverage_amount: float,
     policy_age_days: int,
-    images: list[str] | None = None,
+    deductible: float = 500.0,
+    loss_amount: float | None = None,
+    incident_date: str | None = None,
+    claim_type: str | None = None,
 ) -> dict:
     client = get_client()
     content: list[dict] = []
-
-    for img_b64 in (images or [])[:3]:
-        raw = img_b64.split(",", 1)[1] if "," in img_b64 else img_b64
-        content.append({
-            "type": "image",
-            "source": {
-                "type": "base64",
-                "media_type": "image/jpeg",
-                "data": raw,
-            },
-        })
 
     content.append({
         "type": "text",
         "text": CLAIM_TEMPLATE.format(
             coverage_type=coverage_type.upper(),
             coverage_amount=coverage_amount,
+            deductible=deductible,
             policy_age_days=policy_age_days,
+            claim_type=claim_type or "Not specified",
+            incident_date=incident_date or "Not specified",
+            loss_amount=f"${loss_amount:,.0f} CAD" if loss_amount else "Not specified",
             description=description,
         ),
     })

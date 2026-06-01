@@ -5,20 +5,23 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ── Brand tokens (single source of truth) ──────────────────────────────────
-   60% bg         #fbfbfe  — page backgrounds, main surfaces
-   30% secondary  #dedcff  — cards, navbar, form surfaces
-   10% accent     #433bff  — CTAs, buttons, highlights
-   text           #050315  — all body text
-   primary        #2f27ce  — headings, hover states on accent
+   60% bg         #faf9f4  — warm off-white, main surfaces
+   30% secondary  #f2ead8  — warm parchment, cards, nav surfaces
+   10% accent     #d4911a  — amber gold, CTAs, highlights
+   text           #1a1510  — warm near-black
+   primary        #b8780f  — deep amber, hover states
    ─────────────────────────────────────────────────────────────────────────── */
 
-@theme inline {
-  --color-brand-bg:        #fbfbfe;
-  --color-brand-secondary: #dedcff;
-  --color-brand-primary:   #2f27ce;
-  --color-brand-accent:    #433bff;
-  --color-brand-text:      #050315;
+/* Brand color tokens — plain @theme so they become CSS vars and can be overridden in .dark */
+@theme {
+  --color-brand-bg:        #faf9f4;
+  --color-brand-secondary: #f2ead8;
+  --color-brand-primary:   #b8780f;
+  --color-brand-accent:    #d4911a;
+  --color-brand-text:      #1a1510;
+}
 
+@theme inline {
   /* shadcn token overrides — makes all shadcn components use the brand */
   --color-background:       var(--background);
   --color-foreground:       var(--foreground);
@@ -51,26 +54,66 @@
 }
 
 :root {
+  /* ── Typography scale — single source of truth ──────────────────────────────
+     All font sizes, weights, line-heights, and letter-spacings live here.
+     Components reference these vars via the semantic type-* classes below.
+     Never hard-code font-size / tracking / leading inline — add a class instead.
+     ─────────────────────────────────────────────────────────────────────────── */
+  --fs-h1:          clamp(3rem, 4.5vw, 4rem);   /* 48 – 64px */
+  --fs-h2:          2.25rem;                      /* 36px */
+  --fs-h3:          1.5rem;                       /* 24px */
+  --fs-body:        1rem;                         /* 16px — never go below */
+  --fs-sm:          0.875rem;                     /* 14px — captions, meta */
+  --fs-xs:          0.75rem;                      /* 12px — labels, badges */
+  --lh-heading:     1.1;
+  --lh-tight:       1.2;
+  --lh-body:        1.6;
+  --ls-h1:          -0.03em;
+  --ls-h2:          -0.02em;
+  --ls-label:       0.07em;
+
   /* shadcn base — mapped to brand colors */
-  --background:             #fbfbfe;
-  --foreground:             #050315;
-  --card:                   #dedcff;
-  --card-foreground:        #050315;
-  --popover:                #fbfbfe;
-  --popover-foreground:     #050315;
-  --primary:                #433bff;
+  --background:             #faf9f4;
+  --foreground:             #1a1510;
+  --card:                   #ffffff;
+  --card-foreground:        #1a1510;
+  --popover:                #faf9f4;
+  --popover-foreground:     #1a1510;
+  --primary:                #d4911a;
   --primary-foreground:     #ffffff;
-  --secondary:              #dedcff;
-  --secondary-foreground:   #050315;
-  --muted:                  #dedcff;
-  --muted-foreground:       #050315cc;
-  --accent:                 #433bff;
+  --secondary:              #f2ead8;
+  --secondary-foreground:   #1a1510;
+  --muted:                  #f2ead8;
+  --muted-foreground:       rgba(26, 21, 16, 0.55);
+  --accent:                 #d4911a;
   --accent-foreground:      #ffffff;
   --destructive:            oklch(0.577 0.245 27.325);
-  --border:                 rgba(47, 39, 206, 0.12);
-  --input:                  rgba(47, 39, 206, 0.10);
-  --ring:                   #433bff;
+  --border:                 rgba(180, 120, 10, 0.15);
+  --input:                  rgba(180, 120, 10, 0.12);
+  --ring:                   #d4911a;
   --radius:                 0.75rem;
+}
+
+.dark {
+  /* brand tokens */
+  --color-brand-bg:        #07091f;
+  --color-brand-secondary: #0d1238;
+  --color-brand-text:      #f2ead8;
+
+  /* shadcn tokens */
+  --background:             #07091f;
+  --foreground:             #f2ead8;
+  --card:                   #0d1238;
+  --card-foreground:        #f2ead8;
+  --popover:                #111640;
+  --popover-foreground:     #f2ead8;
+  --secondary:              #151c48;
+  --secondary-foreground:   #f2ead8;
+  --muted:                  #151c48;
+  --muted-foreground:       rgba(242, 234, 216, 0.55);
+  --border:                 rgba(212, 145, 26, 0.18);
+  --input:                  rgba(212, 145, 26, 0.12);
+  --ring:                   #d4911a;
 }
 
 @layer base {
@@ -79,5 +122,45 @@
   }
   body {
     @apply bg-brand-bg text-brand-text;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  /* ── Semantic type classes ───────────────────────────────────────────────────
+     Use these instead of scattering text-* / font-* / tracking-* inline.
+     ─────────────────────────────────────────────────────────────────────────── */
+  .type-h1 {
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    letter-spacing: var(--ls-h1);
+    line-height: var(--lh-heading);
+  }
+  .type-h2 {
+    font-size: var(--fs-h2);
+    font-weight: 700;
+    letter-spacing: var(--ls-h2);
+    line-height: var(--lh-heading);
+  }
+  .type-h3 {
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: var(--lh-tight);
+  }
+  .type-body {
+    font-size: var(--fs-body);
+    font-weight: 400;
+    line-height: var(--lh-body);
+  }
+  .type-sm {
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+  }
+  /* All-caps labels: wider tracking for breathing room */
+  .type-label {
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
   }
 }

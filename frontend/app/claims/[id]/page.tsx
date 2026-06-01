@@ -3,26 +3,49 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
-import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, ShieldCheck, ShieldX, ShieldAlert } from "lucide-react"
-import { getClaim, Claim } from "@/lib/api"
+import { Separator } from "@/components/ui/separator"
+import { ArrowLeft, ShieldCheck, ShieldX, ShieldAlert, AlertTriangle, Brain, BarChart3 } from "lucide-react"
+import { getClaim, getCachedClaims, Claim } from "@/lib/api"
 
-function FraudScoreGauge({ score }: { score: number }) {
-  const radius = 80
-  const stroke = 10
-  const normalizedRadius = radius - stroke / 2
-  const circumference = normalizedRadius * Math.PI
-  const progress = circumference - (score / 100) * circumference
+const decisionConfig = {
+  approved: {
+    icon: ShieldCheck,
+    label: "Approved",
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/[0.08]",
+    border: "border-emerald-500/[0.20]",
+    badgeClass: "bg-emerald-500/[0.15] text-emerald-700 border-emerald-500/[0.25]",
+    bar: "bg-emerald-500",
+  },
+  denied: {
+    icon: ShieldX,
+    label: "Denied",
+    color: "text-red-500",
+    bg: "bg-red-500/[0.08]",
+    border: "border-red-500/[0.20]",
+    badgeClass: "bg-red-500/[0.15] text-red-700 border-red-500/[0.25]",
+    bar: "bg-red-500",
+  },
+  escalated: {
+    icon: ShieldAlert,
+    label: "Escalated to SIU",
+    color: "text-amber-500",
+    bg: "bg-amber-500/[0.08]",
+    border: "border-amber-500/[0.20]",
+    badgeClass: "bg-amber-500/[0.15] text-amber-700 border-amber-500/[0.25]",
+    bar: "bg-amber-500",
+  },
+}
 
+function FraudBar({ score }: { score: number }) {
   const color =
-    score <= 20 ? "#10B981" :
-    score <= 40 ? "#84CC16" :
-    score <= 60 ? "#F59E0B" :
-    score <= 80 ? "#F97316" :
-                  "#EF4444"
+    score <= 20 ? "bg-emerald-500" :
+    score <= 40 ? "bg-lime-500" :
+    score <= 60 ? "bg-amber-500" :
+    score <= 80 ? "bg-orange-500" :
+                  "bg-red-500"
 
   const label =
     score <= 20 ? "Very Low Risk" :
@@ -31,60 +54,31 @@ function FraudScoreGauge({ score }: { score: number }) {
     score <= 80 ? "High Risk" :
                   "Very High Risk"
 
+  const textColor =
+    score <= 20 ? "text-emerald-600" :
+    score <= 40 ? "text-lime-600" :
+    score <= 60 ? "text-amber-600" :
+    score <= 80 ? "text-orange-600" :
+                  "text-red-600"
+
   return (
-    <div className="flex flex-col items-center gap-2">
-      <svg width={radius * 2} height={radius + stroke} viewBox={`0 0 ${radius * 2} ${radius + stroke}`}>
-        <path
-          d={`M ${stroke / 2} ${radius} A ${normalizedRadius} ${normalizedRadius} 0 0 1 ${radius * 2 - stroke / 2} ${radius}`}
-          fill="none"
-          stroke="rgba(47,39,206,0.12)"
-          strokeWidth={stroke}
-          strokeLinecap="round"
+    <div className="flex flex-col gap-2">
+      <div className="flex items-end justify-between">
+        <span className="text-4xl font-bold text-brand-text">{score}</span>
+        <span className={`text-sm font-medium ${textColor}`}>{label}</span>
+      </div>
+      <div className="w-full h-2 rounded-full bg-brand-accent/[0.08]">
+        <div
+          className={`h-2 rounded-full transition-all duration-700 ${color}`}
+          style={{ width: `${score}%` }}
         />
-        <path
-          d={`M ${stroke / 2} ${radius} A ${normalizedRadius} ${normalizedRadius} 0 0 1 ${radius * 2 - stroke / 2} ${radius}`}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={progress}
-          style={{ transition: "stroke-dashoffset 1s ease" }}
-        />
-        <text x={radius} y={radius - 8} textAnchor="middle" fill="#050315" fontSize="28" fontWeight="bold">
-          {score}
-        </text>
-        <text x={radius} y={radius + 12} textAnchor="middle" fill="rgba(5,3,21,0.45)" fontSize="11">
-          FRAUD RISK
-        </text>
-      </svg>
-      <p className="text-sm font-medium" style={{ color }}>{label}</p>
+      </div>
+      <div className="flex justify-between text-[10px] text-brand-text/30">
+        <span>0 — Clean</span>
+        <span>100 — Fraudulent</span>
+      </div>
     </div>
   )
-}
-
-const decisionConfig = {
-  approved: {
-    icon: ShieldCheck,
-    label: "Approved",
-    cardClass: "border-emerald-500/[0.30] bg-emerald-500/[0.06]",
-    iconColor: "text-emerald-500",
-    badgeClass: "bg-emerald-500/[0.15] text-emerald-700 border-emerald-500/[0.25]",
-  },
-  denied: {
-    icon: ShieldX,
-    label: "Denied",
-    cardClass: "border-red-500/[0.30] bg-red-500/[0.06]",
-    iconColor: "text-red-500",
-    badgeClass: "bg-red-500/[0.15] text-red-700 border-red-500/[0.25]",
-  },
-  escalated: {
-    icon: ShieldAlert,
-    label: "Escalated to SIU",
-    cardClass: "border-amber-500/[0.30] bg-amber-500/[0.06]",
-    iconColor: "text-amber-500",
-    badgeClass: "bg-amber-500/[0.15] text-amber-700 border-amber-500/[0.25]",
-  },
 }
 
 export default function ClaimResultPage() {
@@ -92,10 +86,16 @@ export default function ClaimResultPage() {
   const [claim, setClaim] = useState<Claim | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const PRESET_CLAIM_IDS = ["demo-auto-claim-approved", "demo-auto-claim-escalated", "demo-auto-claim-denied"]
+
   useEffect(() => {
-    getClaim(id)
-      .then(setClaim)
-      .finally(() => setLoading(false))
+    if (PRESET_CLAIM_IDS.includes(id)) {
+      getClaim(id).then(setClaim).finally(() => setLoading(false))
+    } else {
+      const cached = getCachedClaims().find((c) => c.id === id)
+      setClaim(cached ?? null)
+      setLoading(false)
+    }
   }, [id])
 
   if (loading) {
@@ -112,72 +112,121 @@ export default function ClaimResultPage() {
   const config = decisionConfig[claim.status as keyof typeof decisionConfig]
   const Icon = config?.icon ?? ShieldAlert
 
+
   return (
     <main className="min-h-screen bg-brand-bg text-brand-text">
 
-      <Navbar>
-        <Link href="/dashboard">
-          <Button variant="outline" className="border-border text-brand-text/70 hover:bg-brand-bg hover:text-brand-text">
-            <ArrowLeft className="mr-2 w-4 h-4" /> Dashboard
-          </Button>
+      <Navbar />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-10 flex flex-col gap-6">
+
+        <Link href="/demo" className="flex items-center gap-2 text-sm text-brand-text/50 hover:text-brand-text transition-colors w-fit">
+          <ArrowLeft className="w-4 h-4" /> Back to Demo
         </Link>
-      </Navbar>
 
-      <div className="max-w-2xl mx-auto px-12 py-16 flex flex-col gap-8">
-
-        {/* Decision Banner */}
+        {/* ── Verdict header ── */}
         {config && (
-          <Card className={`border rounded-2xl p-10 flex flex-col items-center gap-4 shadow-[0_2px_20px_rgba(67,59,255,0.07)] ${config.cardClass}`}>
-            <Icon className={`w-16 h-16 ${config.iconColor}`} />
-            <div className="text-center">
-              <Badge className={`text-sm px-4 py-1 ${config.badgeClass}`}>
-                {config.label}
-              </Badge>
-              <p className="text-sm text-brand-text/60 leading-relaxed mt-3 max-w-sm">{claim.decision_summary}</p>
+          <div className={`rounded-3xl border p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 ${config.bg} ${config.border}`}>
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${config.bg} border ${config.border}`}>
+              <Icon className={`w-8 h-8 ${config.color}`} />
             </div>
-            {claim.payout_amount && (
-              <div className="mt-2 text-center pt-4 border-t border-border w-full">
-                <p className="text-xs text-brand-text/50">Approved Payout</p>
-                <p className="text-5xl font-bold text-emerald-600 mt-2">
-                  ${claim.payout_amount.toLocaleString()} CAD
-                </p>
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="type-h2 text-brand-text">Claim {config.label}</h1>
+                <Badge className={config.badgeClass}>{config.label}</Badge>
               </div>
-            )}
-          </Card>
+              <p className="type-body text-brand-text/60 max-w-[60ch]">
+                {claim.decision_summary}
+              </p>
+            </div>
+          </div>
         )}
 
-        {/* Fraud Score */}
-        {claim.fraud_score !== null && (
-          <Card className="bg-brand-secondary rounded-2xl p-8 flex flex-col items-center gap-6 shadow-[0_2px_20px_rgba(67,59,255,0.07)]">
-            <h2 className="text-xl font-semibold self-start text-brand-text">Fraud Analysis</h2>
-            <FraudScoreGauge score={claim.fraud_score} />
-            {claim.fraud_flags && claim.fraud_flags.length > 0 && (
-              <div className="w-full flex flex-col gap-2">
-                <p className="text-xs font-medium text-red-600 uppercase tracking-wide">Flags Detected</p>
-                {claim.fraud_flags.map((flag, i) => (
-                  <div key={i} className="flex items-start gap-3 text-sm text-brand-text/70 leading-relaxed bg-red-500/[0.06] border border-red-500/[0.20] rounded-2xl px-4 py-3">
-                    <span className="text-red-500 shrink-0">⚑</span>
-                    {flag}
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
-        )}
+        {/* ── Numbers row ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 
-        {/* AI Reasoning */}
+          {/* Fraud Score */}
+          <div className="bg-white dark:bg-card rounded-2xl p-5 shadow-[0_2px_16px_rgba(212,145,26,0.08)] flex flex-col gap-1 col-span-2 sm:col-span-1">
+            <div className="flex items-center gap-2 mb-1">
+              <BarChart3 className="w-4 h-4 text-brand-accent" />
+              <p className="text-xs font-medium text-brand-text/40 uppercase tracking-widest">Fraud Score</p>
+            </div>
+            {claim.fraud_score !== null
+              ? <FraudBar score={claim.fraud_score} />
+              : <p className="text-sm text-brand-text/40">N/A</p>
+            }
+          </div>
+
+          {/* Payout */}
+          <div className="bg-white dark:bg-card rounded-2xl p-5 shadow-[0_2px_16px_rgba(212,145,26,0.08)] flex flex-col gap-1">
+            <div className="flex items-center gap-2 mb-1">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <p className="text-xs font-medium text-brand-text/40 uppercase tracking-widest">Payout</p>
+            </div>
+            {claim.payout_amount
+              ? <>
+                  <p className="text-3xl font-bold text-emerald-600">${claim.payout_amount.toLocaleString()}</p>
+                  <p className="text-xs text-brand-text/40">CAD approved</p>
+                </>
+              : <>
+                  <p className="text-2xl font-bold text-brand-text/30">—</p>
+                  <p className="text-xs text-brand-text/40">No payout</p>
+                </>
+            }
+          </div>
+
+
+        </div>
+
+        {/* ── AI Response ── */}
         {claim.ai_reasoning && claim.ai_reasoning.length > 0 && (
-          <Card className="bg-brand-secondary rounded-2xl p-8 flex flex-col gap-4 shadow-[0_2px_20px_rgba(67,59,255,0.07)]">
-            <h2 className="text-xl font-semibold text-brand-text">AI Reasoning</h2>
-            <div className="flex flex-col gap-3">
+          <div className="bg-white dark:bg-card rounded-3xl shadow-[0_2px_16px_rgba(212,145,26,0.08)] overflow-hidden">
+            <div className="px-7 py-5 border-b border-border flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-brand-accent/[0.10] flex items-center justify-center">
+                <Brain className="w-4 h-4 text-brand-accent" />
+              </div>
+              <div>
+                <h2 className="type-h3 text-brand-text">AI Reasoning</h2>
+                <p className="type-sm text-brand-text/40">How ClaimAI reached this decision</p>
+              </div>
+            </div>
+            <div className="px-7 py-5 flex flex-col gap-0">
               {claim.ai_reasoning.map((point, i) => (
-                <div key={i} className="flex items-start gap-3 text-sm text-brand-text/60 leading-relaxed">
-                  <span className="text-brand-accent font-medium shrink-0 mt-0.5">{i + 1}.</span>
-                  {point}
+                <div key={i}>
+                  <div className="flex items-start gap-4 py-4">
+                    <span className="w-6 h-6 rounded-full bg-brand-accent/[0.10] text-brand-accent text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <p className="type-body text-brand-text/70">{point}</p>
+                  </div>
+                  {i < claim.ai_reasoning!.length - 1 && <Separator />}
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
+        )}
+
+        {/* ── Fraud Flags ── */}
+        {claim.fraud_flags && claim.fraud_flags.length > 0 && (
+          <div className="bg-white dark:bg-card rounded-3xl shadow-[0_2px_16px_rgba(212,145,26,0.08)] overflow-hidden">
+            <div className="px-7 py-5 border-b border-border flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-red-500/[0.10] flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-red-500" />
+              </div>
+              <div>
+                <h2 className="type-h3 text-brand-text">Fraud Flags</h2>
+                <p className="type-sm text-brand-text/40">{claim.fraud_flags.length} {claim.fraud_flags.length === 1 ? "flag" : "flags"} detected</p>
+              </div>
+            </div>
+            <div className="px-7 py-5 flex flex-col gap-3">
+              {claim.fraud_flags.map((flag, i) => (
+                <div key={i} className="flex items-start gap-3 bg-red-500/[0.05] border border-red-500/[0.15] rounded-xl px-4 py-3">
+                  <span className="text-red-500 shrink-0 text-sm">⚑</span>
+                  <p className="type-body text-brand-text/70">{flag}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
       </div>

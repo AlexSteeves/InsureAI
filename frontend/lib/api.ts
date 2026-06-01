@@ -68,6 +68,12 @@ export async function bindPolicy(data: {
   return res.json();
 }
 
+export async function getPolicies(): Promise<Policy[]> {
+  const res = await fetch(`${API}/policies`);
+  if (!res.ok) throw new Error("Failed to fetch policies");
+  return res.json();
+}
+
 export async function getPolicy(id: string): Promise<Policy> {
   const res = await fetch(`${API}/policies/${id}`);
   if (!res.ok) throw new Error("Policy not found");
@@ -82,23 +88,48 @@ export async function getPoliciesByEmail(email: string): Promise<Policy[]> {
 
 // ── Claims ────────────────────────────────────────────────────────────────
 
+const CLAIMS_CACHE_KEY = "insureai_claims"
+
+export function getCachedClaims(): Claim[] {
+  if (typeof window === "undefined") return []
+  try {
+    return JSON.parse(localStorage.getItem(CLAIMS_CACHE_KEY) ?? "[]")
+  } catch {
+    return []
+  }
+}
+
+function cacheClaim(claim: Claim) {
+  if (typeof window === "undefined") return
+  const existing = getCachedClaims().filter((c) => c.id !== claim.id)
+  localStorage.setItem(CLAIMS_CACHE_KEY, JSON.stringify([claim, ...existing]))
+}
+
 export async function submitClaim(data: {
   policy_id: string;
   description: string;
   images: string[];
+  policy_age_days_override?: number;
+  coverage_amount_override?: number;
+  deductible?: number;
+  loss_amount?: number;
+  incident_date?: string;
+  claim_type?: string;
 }): Promise<Claim> {
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 60_000) // 60s — Claude can take ~10s
+  const timeout = setTimeout(() => controller.abort(), 60_000)
 
   try {
-    const res = await fetch(`${API}/claims/`, {
+    const res = await fetch(`${API}/claims`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
       signal: controller.signal,
     });
     if (!res.ok) throw new Error("Failed to submit claim");
-    return res.json();
+    const claim: Claim = await res.json();
+    cacheClaim(claim)
+    return claim
   } finally {
     clearTimeout(timeout)
   }
@@ -110,8 +141,8 @@ export async function getClaim(id: string): Promise<Claim> {
   return res.json();
 }
 
-export async function getClaimsByPolicy(policy_id: string): Promise<Claim[]> {
-  const res = await fetch(`${API}/claims/by-policy/${policy_id}`);
+export async function getClaimsByPolicy(_policy_id: string): Promise<Claim[]> {
+  const res = await fetch(`${API}/claims/demo-auto-claims`);
   if (!res.ok) throw new Error("Failed to fetch claims");
   return res.json();
 }
