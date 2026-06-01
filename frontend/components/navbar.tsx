@@ -55,7 +55,7 @@ export function Navbar({ children }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/75 dark:bg-brand-bg/80 backdrop-blur-md shadow-[0_1px_16px_rgba(212,145,26,0.06)]">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/75 dark:bg-brand-bg/80 backdrop-blur-md shadow-[0_1px_16px_rgba(212,145,26,0.06)]">
       <div className="flex items-center justify-between px-6 md:px-12 py-3">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.svg" alt="InsureAI logo" width={26} height={26} />

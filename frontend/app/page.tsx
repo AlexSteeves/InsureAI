@@ -1,16 +1,18 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/navbar";
-import { Shield, Zap, Trophy, ArrowRight, CheckCircle2, Clock, Cpu } from "lucide-react";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Navbar } from "@/components/navbar"
+import Manifesto from "@/components/manifesto"
+import { Shield, Zap, Trophy, ArrowRight, CheckCircle2, Clock, Cpu } from "lucide-react"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-brand-bg text-brand-text">
+    <main className="min-h-screen bg-brand-bg text-brand-text overflow-x-hidden">
       <Navbar />
 
       {/* ── Hero ── */}
+      {/* background-attachment:fixed must be on the element with background-image — no overflow-hidden */}
       <section
-        className="relative flex items-center px-8 sm:px-16 min-h-screen overflow-hidden"
+        className="relative flex items-center px-8 sm:px-16 min-h-screen -mt-[52px]"
         style={{
           backgroundImage: "url('/Images/grasslands.webp')",
           backgroundSize: "cover",
@@ -18,14 +20,42 @@ export default function Home() {
           backgroundAttachment: "fixed",
         }}
       >
-        <div className="relative z-10 flex flex-col items-start gap-7 max-w-3xl w-full">
-          <h1 className="type-h1 text-[#f5f0e8]">
-            Insurance That Works at the{" "}
-            <span className="text-brand-accent">Speed of Life</span>
+        {/* Dark scrim */}
+        <div className="absolute inset-0 bg-black/30" />
+
+        {/* Zoom-in overlay — scales on load without affecting the fixed background */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ animation: "hero-zoom 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
+        />
+        {/* Decorative + top right */}
+        <span className="absolute top-24 right-16 text-[#f5f0e8]/10 font-bold select-none pointer-events-none"
+          style={{ fontSize: "clamp(4rem, 8vw, 8rem)", lineHeight: 1 }}>+</span>
+
+        <div className="relative z-10 flex flex-col items-start gap-8 max-w-4xl w-full">
+
+          {/* Eyebrow label */}
+          <p className="type-label text-[#f5f0e8]/50">AI-Powered Insurance</p>
+
+          {/* Display headline — Playfair serif, very large */}
+          <h1
+            className="font-serif font-bold text-[#f5f0e8] text-balance"
+            style={{
+              fontSize: "clamp(3.5rem, 7vw, 6.5rem)",
+              lineHeight: 0.97,
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Insurance That Works<br />
+            at the{" "}
+            <em className="not-italic text-brand-accent">Speed of Life</em>
           </h1>
 
-          <p className="type-body text-[#f5f0e8]/75 max-w-[58ch]">
-            Instant policies. AI-handled claims. No humans, no waiting.
+          {/* Divider line */}
+          <div className="w-16 h-px bg-[#f5f0e8]/30" />
+
+          <p className="type-body text-[#f5f0e8]/70 max-w-[52ch]">
+            Instant policies. AI-handled claims.<br />No humans, no waiting, no phone calls.
           </p>
 
           <div className="flex flex-col items-start gap-3">
@@ -34,16 +64,17 @@ export default function Home() {
                 size="lg"
                 className="relative group bg-brand-accent hover:bg-brand-primary text-white px-10 py-6 text-base font-semibold rounded-full shadow-[0_0_32px_rgba(212,145,26,0.45)] hover:shadow-[0_0_52px_rgba(212,145,26,0.65)] hover:scale-105 active:scale-100 transition-all duration-200"
               >
-                <span className="flex items-center gap-2">
+                <span
+                  className="absolute inset-0 rounded-full bg-brand-accent pointer-events-none z-0 group-hover:[animation-name:pulse-hover]"
+                  style={{ animation: "pulse-idle 3s ease-in-out infinite" }}
+                />
+                <span className="relative z-10 flex items-center gap-2">
                   See It in Action
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                 </span>
-                <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-brand-accent pointer-events-none" />
               </Button>
             </Link>
-            <p className="type-label text-[#f5f0e8]/45">
-              No signup needed · Live AI demo
-            </p>
+            <p className="type-label text-[#f5f0e8]/40">No signup needed · Live AI demo</p>
           </div>
         </div>
       </section>
@@ -67,15 +98,20 @@ export default function Home() {
       </div>
 
       {/* ── Features ── */}
-      <section className="py-24 px-8">
+      <section className="py-28 px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="mb-14">
+
+          {/* Section header with + ornament and full-width line */}
+          <div className="flex items-start justify-between mb-3">
             <h2 className="type-h2 text-brand-text">Built different</h2>
-            <p className="type-body text-brand-text/60 mt-4 max-w-[60ch]">
-              Traditional insurance is slow, opaque, and built around agents. We
-              replaced all of it.
-            </p>
+            <span className="text-brand-accent/25 font-bold select-none leading-none mt-1"
+              style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>+</span>
           </div>
+          <div className="w-full h-px bg-border mb-12" />
+
+          <p className="type-body text-brand-text/60 mb-14 max-w-[60ch]">
+            Traditional insurance is slow, opaque, and built around agents. We replaced all of it.
+          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-brand-secondary rounded-2xl p-8 flex flex-col gap-4 shadow-[0_2px_20px_rgba(212,145,26,0.07)]">
@@ -84,8 +120,7 @@ export default function Home() {
               </div>
               <h3 className="type-h3 text-brand-text">Instant Bind</h3>
               <p className="type-body text-brand-text/60">
-                Get a policy in under 60 seconds. No paperwork, no agents, no
-                waiting rooms.
+                Get a policy in under 60 seconds. No paperwork, no agents, no waiting rooms.
               </p>
             </div>
 
@@ -95,8 +130,7 @@ export default function Home() {
               </div>
               <h3 className="type-h3 text-brand-text">AI Claims</h3>
               <p className="type-body text-brand-text/60">
-                File a claim and get a decision in seconds. No adjusters, no
-                delays, no phone calls.
+                File a claim and get a decision in seconds. No adjusters, no delays, no phone calls.
               </p>
             </div>
 
@@ -106,28 +140,33 @@ export default function Home() {
               </div>
               <h3 className="type-h3 text-brand-text">Win What You Cover</h3>
               <p className="type-body text-brand-text/60">
-                Stay claim-free and earn rewards. Discounts, badges, and bonuses
-                stack over time.
+                Stay claim-free and earn rewards. Discounts, badges, and bonuses stack over time.
               </p>
             </div>
           </div>
         </div>
       </section>
 
+      {/* ── Scroll Text Manifesto ── */}
+      <Manifesto />
+
       {/* ── How it works ── */}
-      <section className="bg-brand-secondary py-24 px-8 border-y border-border">
+      <section className="py-28 px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="mb-14">
+
+          {/* Section header */}
+          <div className="flex items-start justify-between mb-3">
             <h2 className="type-h2 text-brand-text">How it works</h2>
-            <p className="type-body text-brand-text/60 mt-4">Three steps. One minute.</p>
+            <span className="text-brand-accent/25 font-bold select-none leading-none mt-1"
+              style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>+</span>
           </div>
+          <div className="w-full h-px bg-border mb-4" />
+          <p className="type-body text-brand-text/60 mb-14">Three steps. One minute.</p>
 
           <div className="flex flex-col divide-y divide-border">
             {/* Step 01 */}
             <div className="grid grid-cols-1 md:grid-cols-[6rem_1fr_1fr] gap-6 py-10 first:pt-0">
-              <div className="flex items-start gap-4 md:flex-col md:gap-0">
-                <span className="text-5xl font-bold text-brand-accent/20 leading-none tracking-tight">01</span>
-              </div>
+              <span className="text-5xl font-bold text-brand-accent/20 leading-none tracking-tight">01</span>
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-brand-accent/[0.10] flex items-center justify-center shrink-0">
@@ -151,9 +190,7 @@ export default function Home() {
 
             {/* Step 02 */}
             <div className="grid grid-cols-1 md:grid-cols-[6rem_1fr_1fr] gap-6 py-10">
-              <div className="flex items-start gap-4 md:flex-col md:gap-0">
-                <span className="text-5xl font-bold text-brand-accent/20 leading-none tracking-tight">02</span>
-              </div>
+              <span className="text-5xl font-bold text-brand-accent/20 leading-none tracking-tight">02</span>
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-brand-accent/[0.10] flex items-center justify-center shrink-0">
@@ -177,9 +214,7 @@ export default function Home() {
 
             {/* Step 03 */}
             <div className="grid grid-cols-1 md:grid-cols-[6rem_1fr_1fr] gap-6 py-10 last:pb-0">
-              <div className="flex items-start gap-4 md:flex-col md:gap-0">
-                <span className="text-5xl font-bold text-brand-accent/20 leading-none tracking-tight">03</span>
-              </div>
+              <span className="text-5xl font-bold text-brand-accent/20 leading-none tracking-tight">03</span>
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-brand-accent/[0.10] flex items-center justify-center shrink-0">
@@ -205,14 +240,20 @@ export default function Home() {
       </section>
 
       {/* ── Bottom CTA ── */}
-      <section className="py-24 px-8">
+      <section className="py-24 px-8 bg-brand-secondary border-t border-border">
         <div className="max-w-5xl mx-auto">
-          <div className="rounded-3xl bg-brand-secondary border border-border p-10 md:p-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center shadow-[0_4px_32px_rgba(212,145,26,0.08)]">
+          <div className="rounded-3xl bg-brand-bg border border-border p-10 md:p-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center shadow-[0_4px_32px_rgba(212,145,26,0.08)]">
 
-            {/* Left — copy */}
             <div className="flex flex-col gap-5">
               <p className="type-label text-brand-accent">Ready when you are</p>
-              <h2 className="type-h2 text-brand-text">Coverage that starts in 60 seconds.</h2>
+              <h2
+                className="font-serif font-bold text-brand-text text-balance"
+                style={{ fontSize: "clamp(2rem, 4vw, 3rem)", lineHeight: 1.05, letterSpacing: "-0.025em" }}
+              >
+                Coverage that starts in 60 seconds.
+              </h2>
+              {/* Full-width line */}
+              <div className="w-full h-px bg-border" />
               <p className="type-body text-brand-text/60 max-w-[52ch]">
                 No agents. No paperwork. No surprises. File a claim and get an AI decision in seconds — not days.
               </p>
@@ -247,5 +288,5 @@ export default function Home() {
         </div>
       </section>
     </main>
-  );
+  )
 }

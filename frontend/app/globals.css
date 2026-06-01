@@ -116,6 +116,21 @@
   --ring:                   #d4911a;
 }
 
+@keyframes hero-zoom {
+  from { transform: scale(1.08); }
+  to   { transform: scale(1.00); }
+}
+
+@keyframes pulse-idle {
+  0%, 100% { transform: scale(1);    opacity: 0.15; }
+  50%       { transform: scale(1.25); opacity: 0;    }
+}
+
+@keyframes pulse-hover {
+  0%, 100% { transform: scale(1);    opacity: 0.35; }
+  50%       { transform: scale(1.6);  opacity: 0;    }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
