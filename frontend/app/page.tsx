@@ -12,7 +12,7 @@ export default function Home() {
       <section
         className="relative flex items-center px-8 sm:px-16 min-h-screen overflow-hidden"
         style={{
-          backgroundImage: "url('/Images/grasslands.jpg')",
+          backgroundImage: "url('/Images/grasslands.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
