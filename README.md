@@ -2,6 +2,12 @@
 
 A full-stack AI insurance demo. Instant policy binding, AI-powered claims decisions, and real-time fraud scoring — no agents, no waiting.
 
+
+## Live Demo
+
+[**→ View Live Demo**](https://www.alexsteeves.com)
+
+> Built with Next.js, FastAPI, and Claude Sonnet. No signup required.
 ---
 
 ## Tech Stack
